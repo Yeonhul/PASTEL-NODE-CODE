@@ -29,7 +29,7 @@ PROTOCOL_CONNECTION_LOST();
 
 // 
 
-const server = app.listen(3000, () => {
+const server = app.listen(process.env.PORT || 3000, () => {
     console.log(`${Date()} : 서버실행완료`)
 });
 
@@ -46,9 +46,7 @@ app.get('/api', function(req, res) {
     conn.query(log, function(err, rows, fields) {
         if(err) console.log("errer!",err);
         else {
-            // console.log('hex data clear ! :', rows);
             get_d.push(rows);
-            // console.log("get_d : ", get_d[0]);
             res.send(get_d[0]);
         }
     })
