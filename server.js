@@ -110,9 +110,9 @@ app.post('/api/pick',function(req, res) {
     })
 })
 app.post('/api/pick/check', function(req, res) {
-    console.log(req.body);
     var check_pick = `SELECT * FROM hex_pick WHERE user_name="${req.body.user}";`
     conn.query(check_pick, function(err, rows, fields) {
+        console.log('pick',req.body);
         if(err) return console.log(err);
         else{
             res.send(rows);
