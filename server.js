@@ -1,6 +1,8 @@
 console.time('전체실행시간');
 const express = require('express');
+const cors = require('cors');
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 // mysql 
@@ -25,8 +27,7 @@ function PROTOCOL_CONNECTION_LOST() {//PROTOCOL_CONNECTION_LOST 대한 방지
     })
 }
 PROTOCOL_CONNECTION_LOST();
-
-
+    
 // 
 
 const server = app.listen(process.env.PORT || 3000, () => {
