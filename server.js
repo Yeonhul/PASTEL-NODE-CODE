@@ -1,4 +1,3 @@
-console.time('전체실행시간');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -19,7 +18,7 @@ function mysql_event() {
     })
 }
 mysql_event();
-function PROTOCOL_CONNECTION_LOST() {//PROTOCOL_CONNECTION_LOST 대한 방지  
+function PROTOCOL_CONNECTION_LOST() { // PROTOCOL_CONNECTION_LOST 대한 방지  
     conn.query(`SELECT 1`, function(err, rows, fields) {
         if(err) console.log(err);
         else setTimeout(() => {
@@ -34,8 +33,6 @@ PROTOCOL_CONNECTION_LOST();
 const server = app.listen(process.env.PORT || 3000, () => {
     console.log(`${Date()} : 서버실행완료`)
 });
-
-
 
 app.get('/', function(req, res) {
     res.send('main page')
