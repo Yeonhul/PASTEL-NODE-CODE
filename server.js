@@ -40,18 +40,6 @@ const server = app.listen(process.env.PORT || 3000, () => {
 app.get('/', function(req, res) {
     res.send('main page')
 })
-var get_d = [];
-// get
-app.get('/api', function(req, res) {
-    var log = `SELECT * FROM hex_data;`
-    conn.query(log, function(err, rows, fields) {
-        if(err) console.log("errer!",err);
-        else {
-            get_d.push(rows);
-            res.send(get_d[0]);
-        }
-    })
-})
 
 // join
 app.post('/api/join', function(req, res) {
