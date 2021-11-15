@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const admin = require('./admin');
 const db_info = {
     host : 'us-cdbr-east-04.cleardb.com', //호스트 주소 
     port : '3306', //mysql port

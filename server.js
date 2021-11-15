@@ -5,6 +5,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 // mysql 
 var db_config = require(__dirname + '/data.js');
 var conn = db_config.init();
@@ -35,7 +36,6 @@ const server = app.listen(process.env.PORT || 3000, () => {
 });
 
 
-// app.set('views', __dirname + '/views'); 
 
 app.get('/', function(req, res) {
     res.send('main page')
@@ -110,6 +110,8 @@ app.post('/api/pick',function(req, res) {
         }
     })
 })
+
+
 app.post('/api/pick/check', function(req, res) {
     var check_pick = `SELECT * FROM hex_pick WHERE user_name="${req.body.u_id}";`
     conn.query(check_pick, function(err, rows, fields) {
@@ -123,6 +125,3 @@ app.post('/api/pick/check', function(req, res) {
 })
 
 
-
-
-// console.timeEnd('전체실행시간');
