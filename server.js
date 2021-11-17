@@ -4,7 +4,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
+ 
 // mysql 
 var db_config = require(__dirname + '/data.js');
 var conn = db_config.init();
