@@ -1,7 +1,8 @@
-console.time('전체실행시간');
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const admin = require('./admin');
+const crypto = require('crypto');
 app.use(cors());
 app.use(express.json());
 
@@ -18,8 +19,7 @@ function mysql_event() {
     })
 }
 mysql_event();
-
-function PROTOCOL_CONNECTION_LOST() {//PROTOCOL_CONNECTION_LOST 대한 방지  
+function PROTOCOL_CONNECTION_LOST() { // PROTOCOL_CONNECTION_LOST 대한 방지  
     conn.query(`SELECT 1`, function(err, rows, fields) {
         if(err) console.log(err);
         else setTimeout(() => {
@@ -35,35 +35,31 @@ const server = app.listen(process.env.PORT || 3000, () => {
     console.log(`${Date()} : 서버실행완료`)
 });
 
-
-// app.set('views', __dirname + '/views'); 
-
 app.get('/', function(req, res) {
     res.send('main page')
-})
-var get_d = [];
-// get
-app.get('/api', function(req, res) {
-    var log = `SELECT * FROM hex_data;`
-    conn.query(log, function(err, rows, fields) {
-        if(err) console.log("errer!",err);
-        else {
-            get_d.push(rows);
-            res.send(get_d[0]);
-        }
-    })
 })
 
 // join
 app.post('/api/join', function(req, res) {
-    var join = `INSERT INTO user_data (user_id, user_password) VALUES ('${req.body.u_id}','${req.body.u_password}')` // 해당 아이디 비밀번호 db입력
-    var join_check = `SELECT * FROM user_data WHERE user_id= '${req.body.u_id}';`; //아이디 중복체크 여부 
+    var join = `INSERT INTO user_data (user_id, user_password) VALUES (?, ?)`// 해당 아이디 비밀번호 db입력
+    var join_check = `SELECT * FROM user_data WHERE user_id=` + conn.escape(req.body.u_id); //아이디 중복체크 여부 sql injection 방어
+
+    const password = crypto.createHmac('sha256', admin.secret).update(req.body.u_password).digest('hex'); // 패스워드 암호화
+
+    if(req.body.u_id.search(/[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi) != -1) { //아이디 특수문자 체크
+        return res.send('아이디에 특수문자는 사용이 불가능합니다')
+    }
     conn.query(join_check, function(err, rows, fields) {
+        console.log(join_check);
         if(err) return console.log(`join err`,err.code);
         if(rows[0] == undefined) { // 입력된 id가 존재하지않는 id 일 때
-            conn.query(join, function (err, rows2, fields) {
-                if(err) return console.log(err);
-                else console.log('join clear : ', rows2); return res.send(`아이디 생성이 완료 되었습니다.`);
+            conn.query(join,[req.body.u_id,password], function (err, rows2, fields) {
+                console.log(join);
+                if(err) {
+                    return console.log(err);
+                }else{
+                    console.log('join clear : ', rows2); return res.send(`아이디 생성이 완료 되었습니다.`);
+                }             
             });
         }else return res.send(`이미 아이디가 존재합니다.`); 
     })
@@ -72,21 +68,27 @@ app.post('/api/join', function(req, res) {
 // login 
 app.post('/api/login', function(req, res) {
     // res.send('login');
-    var login = `SELECT * FROM user_data WHERE user_id= '${req.body.u_id}';`
+    var login = `SELECT * FROM user_data WHERE user_id= ` + conn.escape(req.body.u_id); //sql injection 방어 
+    const password = crypto.createHmac('sha256', admin.secret).update(req.body.u_password).digest('hex');
     conn.query(login, function(err, rows, fields) {
-        if(err) {console.log(err)};
+        console.log(login);
+        if(err) {
+            console.log(err)
+        };
         if(!rows[0]) {
-            return res.send(`id errer`)
+            return res.send(`존재하지않는 아이디 입니다.`)
         }
 
-        if(rows[0].user_password == req.body.u_password) {
+        if(rows[0].user_password == password) {
             console.log('로그인승인 : ', req.body.u_id)
+            console.log('1 : ',password);
+            console.log('2 : ',rows[0].user_password);
             return res.send(`success`);
         }else {
-            return res.send(`password errer`,)
+            return res.send(`비밀번호가 맞지않습니다.`)
         }; 
     })
-})
+})  
 
 // pick
 
@@ -96,26 +98,37 @@ app.post('/api/pick',function(req, res) {
     var plus = `INSERT INTO hex_pick (user_name, hex_index, hex_name) VALUES ('${req.body.user}', '${req.body.hex}', '${req.body.hex_name}');`;
     var del = `DELETE FROM hex_pick WHERE user_name="${req.body.user}" and hex_index="${req.body.hex}"`;
     conn.query(check, function(err, rows, fields) {
-        if(err) return console.log(err);
+        if(err) {
+            // return console.log(err);
+        }
         console.log('rows',rows[0]);
         if(rows[0] == undefined) {
             conn.query(plus, function(err, rows2, fields) {
-                if(err) return console.log(err);
+                if(err) {
+                    // return console.log(err);
+                }
                 console.log('추가완료 : ', rows2);
             })
         }else {
             conn.query(del, function(err, rows3, fields) {
-                if(err) return console.log(err);
+                if(err) {
+                   // return console.log(err);
+                }
                 console.log('삭제완료 : ', rows3);
             })
         }
     })
 })
+
+
 app.post('/api/pick/check', function(req, res) {
     var check_pick = `SELECT * FROM hex_pick WHERE user_name="${req.body.u_id}";`
     conn.query(check_pick, function(err, rows, fields) {
         console.log('pick',req.body.u_id);
-        if(err) return console.log(err);
+        if(err) 
+        {
+            // return console.log(err);
+        }
         else{
             res.send(rows);
         }
@@ -124,6 +137,3 @@ app.post('/api/pick/check', function(req, res) {
 })
 
 
-
-
-// console.timeEnd('전체실행시간');
