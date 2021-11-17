@@ -89,15 +89,14 @@ app.post('/api/login', function(req, res) {
 // pick
 
 app.post('/api/pick',function(req, res) {
-    console.log(req.body);
-    var check = `SELECT * FROM hex_pick WHERE user_name="${req.body.user}" and hex_index = '${req.body.hex}';`
-    var plus = `INSERT INTO hex_pick (user_name, hex_index, hex_name) VALUES ('${req.body.user}', '${req.body.hex}', '${req.body.hex_name}');`;
-    var del = `DELETE FROM hex_pick WHERE user_name="${req.body.user}" and hex_index="${req.body.hex}"`;
-    conn.query(check, function(err, rows, fields) {
+    var check = `SELECT * FROM hex_pick WHERE user_name=? and hex_index = ?;` // 존재 여부 체크 
+    var plus = `INSERT INTO hex_pick (user_name, hex_index, hex_name) VALUES (?, ?, ?);`; // 추가
+    var del = `DELETE FROM hex_pick WHERE user_name=`+ conn.escape(req.body.user) + `and hex_index=`+ conn.escape(req.body.hex); // 삭제
+    conn.query(check,[req.body.user,req.body.hex], function(err, rows, fields) {
         if(err) return console.log(err);
         
         if(rows[0] == undefined) {
-            conn.query(plus, function(err, rows2, fields) {
+            conn.query(plus,[req.body.user,req.body.hex,req.body.hex_name], function(err, rows2, fields) {
                 if(err) return console.log(err);
                 
             })
@@ -112,8 +111,9 @@ app.post('/api/pick',function(req, res) {
 
 
 app.post('/api/pick/check', function(req, res) {
-    var check_pick = `SELECT * FROM hex_pick WHERE user_name="${req.body.u_id}";`
+    var check_pick = `SELECT * FROM hex_pick WHERE user_name= `+ conn.escape(req.body.u_id);
     conn.query(check_pick, function(err, rows, fields) {
+        console.log(check_pick);
         console.log('pick',req.body.u_id);
         if(err) return console.log(err);
         else{
