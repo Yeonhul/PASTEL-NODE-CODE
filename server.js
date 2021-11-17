@@ -52,17 +52,17 @@ app.post('/api/join', function(req, res) {
         return res.send('아이디에 특수문자는 사용이 불가능합니다')
     }
     conn.query(join_check, function(err, rows, fields) {
-        console.log(join_check);
+
         if(err) return console.log(`join err`,err.code);
+
         if(rows[0] == undefined) { // 입력된 id가 존재하지않는 id 일 때
             conn.query(join,[req.body.u_id,password], function (err, rows2, fields) {
-                console.log(join);
-                if(err) {
-                    return console.log(err);
-                }else{
-                    console.log('join clear : ', rows2); return res.send(`아이디 생성이 완료 되었습니다.`);
+                if(err) return console.log(err);
+                else{
+                    return res.send(`아이디 생성이 완료 되었습니다.`);
                 }             
             });
+        
         }else return res.send(`이미 아이디가 존재합니다.`); 
     })
 })
@@ -73,10 +73,7 @@ app.post('/api/login', function(req, res) {
     var login = `SELECT * FROM user_data WHERE user_id= ` + conn.escape(req.body.u_id); //sql injection 방어 
     const password = crypto.createHmac('sha256', admin.secret).update(req.body.u_password).digest('hex');
     conn.query(login, function(err, rows, fields) {
-        console.log(login);
-        if(err) {
-            console.log(err)
-        };
+        if(err) console.log(err)
         if(!rows[0]) {
             return res.send(`존재하지않는 아이디 입니다.`)
         }
@@ -98,23 +95,17 @@ app.post('/api/pick',function(req, res) {
     var plus = `INSERT INTO hex_pick (user_name, hex_index, hex_name) VALUES ('${req.body.user}', '${req.body.hex}', '${req.body.hex_name}');`;
     var del = `DELETE FROM hex_pick WHERE user_name="${req.body.user}" and hex_index="${req.body.hex}"`;
     conn.query(check, function(err, rows, fields) {
-        if(err) {
-            // return console.log(err);
-        }
-        console.log('rows',rows[0]);
+        if(err) return console.log(err);
+        
         if(rows[0] == undefined) {
             conn.query(plus, function(err, rows2, fields) {
-                if(err) {
-                    // return console.log(err);
-                }
-                console.log('추가완료 : ', rows2);
+                if(err) return console.log(err);
+                
             })
         }else {
             conn.query(del, function(err, rows3, fields) {
-                if(err) {
-                   // return console.log(err);
-                }
-                console.log('삭제완료 : ', rows3);
+                if(err) return console.log(err);
+                
             })
         }
     })
@@ -125,14 +116,10 @@ app.post('/api/pick/check', function(req, res) {
     var check_pick = `SELECT * FROM hex_pick WHERE user_name="${req.body.u_id}";`
     conn.query(check_pick, function(err, rows, fields) {
         console.log('pick',req.body.u_id);
-        if(err) 
-        {
-            // return console.log(err);
-        }
+        if(err) return console.log(err);
         else{
             res.send(rows);
         }
-        console.log('rows',rows);
     })
 })
 
