@@ -83,8 +83,6 @@ app.post('/api/login', function(req, res) {
 
         if(rows[0].user_password == password) {
             console.log('로그인승인 : ', req.body.u_id)
-            console.log('1 : ',password);
-            console.log('2 : ',rows[0].user_password);
             return res.send(`success`);
         }else {
             return res.send(`비밀번호가 맞지않습니다.`)
