@@ -31,7 +31,7 @@ PROTOCOL_CONNECTION_LOST();
 // 
 
 const server = app.listen(process.env.PORT || 3000, () => {
-    console.log(`${Date()} : 서버실행완료`)
+    console.log(`${Date()} : ????`)
 });
 
 app.get('/', function(req, res) {
