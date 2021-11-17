@@ -6,7 +6,8 @@ const db_info = {
     port : admin.port, 
     user : admin.user,
     password : admin.password,
-    database : admin.database
+    database : admin.database,
+    multipleStatements: true
 }
 
 module.exports = {
