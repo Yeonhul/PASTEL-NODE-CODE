@@ -127,7 +127,6 @@ app.post('/api/pick/check', function(req, res) {
         console.log('pick',req.body.u_id);
         if(err) 
         {
-            // return console.log(err);
         }
         else{
             res.send(rows);
