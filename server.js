@@ -50,7 +50,6 @@ app.post('/api/join', function(req, res) {
         return res.send('아이디에 특수문자는 사용이 불가능합니다')
     }
     conn.query(join_check, function(err, rows, fields) {
-        console.log(join_check);
         if(err) return console.log(`join err`,err.code);
         if(rows[0] == undefined) { // 입력된 id가 존재하지않는 id 일 때
             conn.query(join,[req.body.u_id,password], function (err, rows2, fields) {
@@ -71,7 +70,6 @@ app.post('/api/login', function(req, res) {
     var login = `SELECT * FROM user_data WHERE user_id= ` + conn.escape(req.body.u_id); //sql injection 방어 
     const password = crypto.createHmac('sha256', admin.secret).update(req.body.u_password).digest('hex');
     conn.query(login, function(err, rows, fields) {
-        console.log(login);
         if(err) {
             console.log(err)
         };
@@ -125,8 +123,8 @@ app.post('/api/pick/check', function(req, res) {
     var check_pick = `SELECT * FROM hex_pick WHERE user_name="${req.body.u_id}";`
     conn.query(check_pick, function(err, rows, fields) {
         console.log('pick',req.body.u_id);
-        if(err) 
-        {
+        if(err) {
+            // return console.log(err);
         }
         else{
             res.send(rows);
