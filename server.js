@@ -18,6 +18,7 @@ function mysql_event() {
     })
 }
 mysql_event();
+
 function PROTOCOL_CONNECTION_LOST() {//PROTOCOL_CONNECTION_LOST 대한 방지  
     conn.query(`SELECT 1`, function(err, rows, fields) {
         if(err) console.log(err);
